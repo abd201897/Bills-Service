@@ -1,0 +1,20 @@
+import * as service from "./service";
+
+//SERVICE PENDING
+export async function getbalance(req, res, next) {
+  try {
+    return res.status(200).json(await service.getbalance(req.user));
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function purchaseairtime(req, res, next) {
+  try {
+    return res
+      .status(200)
+      .json(await service.purchaseairtime(req.user, req.body));
+  } catch (err) {
+    next(err);
+  }
+}
