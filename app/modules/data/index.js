@@ -7,7 +7,7 @@ import validation from "./validation";
 const router = Router();
 
 //GET DATA PACKAGES
-router.get("balance", guard(), controller.getbalance);
+router.get("/balance", guard(), controller.getbalance);
 //POST PURCHASE DATA
 router.post(
   "/purchase",
