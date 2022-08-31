@@ -7,7 +7,7 @@ export const getbalance = async (user, { phonenumber }) => {
 
     const ussdstring = `${
       USSD_STRINGS[telco.toUpperCase()].CHECK_BALANCE
-    }${phonenumber}*${amount}#`; 
+    }${phonenumber}`; 
 
     const res = await agent
       .post("https://api.textng.xyz/carrier_ussd/")

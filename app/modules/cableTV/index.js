@@ -10,3 +10,5 @@ const router = Router();
 router.get("/balance", guard(), controller.getCableTVBill);
 //POST PURCHASE DATA
 router.post("/purchase", guard(), joiValidator(validation.purchasedata), controller.payCableTvBill );
+
+export default router;

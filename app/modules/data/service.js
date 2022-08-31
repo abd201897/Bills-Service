@@ -32,15 +32,24 @@ export const getpackages = async () => {
   }
 };
 
-export const purchasedata = async (user, { telco, phonenumber, amount }) => {
+export const purchasedata = async (user, { telco, phonenumber, code }) => {
+  let ammount = 0;
+  let agentAmount = 0;
   try {
     const billsaccount = await Bills.findOne({ userid: user._id });
     if (billsaccount === null) {
       throw new Error("Bills Account not found");
     }
+//Code for agent CashBack
+    if(user.type === 'agent'){
+      agentAmount = (DATA_PACKAGES[code].amount) * 5 / 100
+      ammount = DATA_PACKAGES[code].amount - agentAmount;
+    }else {
+      ammount = DATA_PACKAGES[code].amount
+    }
     const ussdstring = `${
       USSD_STRINGS[telco.toUpperCase()].PURCHASE_DATA
-    }${phonenumber}*${amount}#`;
+    }${phonenumber}*${ammount}#`;   
 
     const res = await agent
       .post("https://api.textng.xyz/carrier_ussd/")
@@ -59,6 +68,7 @@ export const purchasedata = async (user, { telco, phonenumber, amount }) => {
     }
 
     const transaction = {
+      DataPackageSubscription: `${DATA_PACKAGES[code].code}`,
       amount,
       beneficiary: phonenumber,
       transactiontime: new Date().toISOString(),
