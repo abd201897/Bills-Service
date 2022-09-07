@@ -19,6 +19,7 @@
     "iyasunday": "^1.1.4",
     "joi": "^17.6.0",
     "mongoose": "^6.5.1",
+    "node-fetch": "^2.6.6",
     "superagent": "^8.0.0"
   },
   "devDependencies": {

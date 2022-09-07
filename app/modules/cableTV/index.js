@@ -6,17 +6,9 @@ import validation from "./validation";
 
 const router = Router();
 
-//GET AIRTIME BALANCE
-router.get("/balance", guard(), controller.getbalance);
-
-//PURCHASE AIRTIME BALANCE
-router.post(
-  "/purchase",
-  guard(),
-  joiValidator(validation.purchaseairtime),
-  controller.purchaseairtime
-);
-
-
+//GET CableTV Bill
+router.get("/balance", guard(), controller.getCableTVBill);
+//POST PURCHASE DATA
+router.post("/purchase", guard(), joiValidator(validation.purchasedata), controller.payCableTvBill );
 
 export default router;
