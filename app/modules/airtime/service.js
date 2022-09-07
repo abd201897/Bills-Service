@@ -1,25 +1,29 @@
 import Bills from "../../models/Bills";
 import { USSD_STRINGS } from "../../utils/constants";
+import fetch from 'node-fetch'
 import agent from "superagent";
 
 export const getbalance = async (user, { phonenumber }) => {
   try {
 
-    const ussdstring = `${
-      USSD_STRINGS[telco.toUpperCase()].CHECK_BALANCE
-    }${phonenumber}`; 
+    const ussdstring = `${USSD_STRINGS[telco.toUpperCase()].CHECK_BALANCE}${phonenumber}`; 
 
-    const res = await agent
-      .post("https://api.textng.xyz/carrier_ussd/")
-      .type("form")
-      .field("key", process.env.TEXTING_KEY)
-      .field("bypasscode", process.env.BYPASSCODE)
-      .field("ussd", ussdstring)
-      .field("ussd_steps", 1)
-      .field("amt", 0)
-      .field("pin", process.env.SECRET_PIN);
+    //SEND USSD_QUERY TO USER MOBILE
+    const data = [
+    `key=${process.env.TEXTNG_API}`,
+    `ussd=${ussdstring}`,
+    `amount=${body.amount}`, 
+    `ussd_steps="1,2"`,
+    `pin=${body.pin}`,
+    `bypasscode=${process.env.BYPASSCODE}`];
 
-    const result = JSON.parse(res.text).D.details[0];
+    const response = await fetch("https://api.textng.xyz/carrier_ussd/",{
+      method: "POST",
+      body: data.join('&'),
+      headers:{'Content-Type': 'application/x-www-form-urlencoded'},
+    });
+
+    const result = JSON.parse(response.text).D.details[0];
 
     if (result.status !== "successful") {
       throw new Error("An Error Occured with the transaction");
@@ -47,21 +51,24 @@ export const purchaseairtime = async (user, { telco, phonenumber, amount }) => {
     if (billsaccount === null) {
       throw new Error("Bills Account not found");
     }
-    const ussdstring = `${
-      USSD_STRINGS[telco.toUpperCase()].PURCHASE_AIRTIME
-    }${phonenumber}*${amount}#`;                   // MTN82392839*900#
+    const ussdstring = `${USSD_STRINGS[telco.toUpperCase()].PURCHASE_AIRTIME}${phonenumber}*${amount}#`;   // MTN82392839*900#
 
-    const res = await agent
-      .post("https://api.textng.xyz/carrier_ussd/")
-      .type("form")
-      .field("key", process.env.TEXTING_KEY)
-      .field("bypasscode", process.env.BYPASSCODE)
-      .field("ussd", ussdstring)
-      .field("ussd_steps", 1)
-      .field("amt", 0)
-      .field("pin", process.env.SECRET_PIN);
+    //SEND DATA TO PURCHASE AIRTIME FOR USER 
+    const data = [
+    `key=${process.env.TEXTNG_API}`,
+    `ussd=${ussdstring}`,
+    `amount=${body.amount}`, 
+    `ussd_steps="1,2"`,
+    `pin=${body.pin}`,
+    `bypasscode=${process.env.BYPASSCODE}`];
 
-    const result = JSON.parse(res.text).D.details[0];
+    const response = await fetch("https://api.textng.xyz/carrier_ussd/",{
+      method: "POST",
+      body: data.join('&'),
+      headers:{'Content-Type': 'application/x-www-form-urlencoded'},
+    });
+
+    const result = JSON.parse(response.text).D.details[0];
 
     if (result.status !== "successful") {
       throw new Error("An Error Occured with the transaction");

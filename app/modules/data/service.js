@@ -1,6 +1,5 @@
 import Bills from "../../models/Bills";
 import { USSD_STRINGS, DATA_PACKAGES } from "../../utils/constants";
-import agent from "superagent";
 
 //SERVICE PENDING
 export const getbalance = async (user, { phonenumber }) => {
@@ -40,28 +39,31 @@ export const purchasedata = async (user, { telco, phonenumber, code }) => {
     if (billsaccount === null) {
       throw new Error("Bills Account not found");
     }
-//Code for agent CashBack
+    //Code for agent CashBack
     if(user.type === 'agent'){
       agentAmount = (DATA_PACKAGES[code].amount) * 5 / 100
       ammount = DATA_PACKAGES[code].amount - agentAmount;
     }else {
       ammount = DATA_PACKAGES[code].amount
     }
-    const ussdstring = `${
-      USSD_STRINGS[telco.toUpperCase()].PURCHASE_DATA
-    }${phonenumber}*${ammount}#`;   
+    const ussdstring = `${USSD_STRINGS[telco.toUpperCase()].PURCHASE_DATA}${phonenumber}*${ammount}#`;   
 
-    const res = await agent
-      .post("https://api.textng.xyz/carrier_ussd/")
-      .type("form")
-      .field("key", process.env.TEXTING_KEY)
-      .field("bypasscode", process.env.BYPASSCODE)
-      .field("ussd", ussdstring)
-      .field("ussd_steps", 1)
-      .field("amt", 0)
-      .field("pin", process.env.SECRET_PIN);
+    //SEND DATA PACKAGE TO USER 
+    const data = [
+      `key=${process.env.TEXTNG_API}`,
+      `ussd=${ussdstring}`,
+      `amount=${body.amount}`, 
+      `ussd_steps="1,2"`,
+      `pin=${body.pin}`,
+      `bypasscode=${process.env.BYPASSCODE}`];
+  
+      const response = await fetch("https://api.textng.xyz/carrier_ussd/",{
+        method: "POST",
+        body: data.join('&'),
+        headers:{'Content-Type': 'application/x-www-form-urlencoded'},
+      });
 
-    const result = JSON.parse(res.text).D.details[0];
+    const result = JSON.parse(response.text).D.details[0];
 
     if (result.status !== "successful") {
       throw new Error("An Error Occured with the transaction");
