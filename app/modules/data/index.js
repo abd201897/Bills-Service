@@ -9,12 +9,7 @@ const router = Router();
 //GET DATA PACKAGES
 router.get("/balance", guard(), controller.getbalance);
 //POST PURCHASE DATA
-router.post(
-  "/purchase",
-  guard(),
-  joiValidator(validation.purchasedata),
-  controller.purchasedata
-);
+router.post("/purchase",guard(),joiValidator(validation.purchasedata),controller.purchasedata);
 //GET BENEFICIARIES
 router.get("/getbeneficiaries", controller.getbeneficiaries);
 //ADD BENEFICIARIES
