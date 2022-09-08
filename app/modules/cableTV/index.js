@@ -6,9 +6,10 @@ import validation from "./validation";
 
 const router = Router();
 
-//GET CableTV Bill
-router.get("/balance", guard(), controller.getCableTVBill);
+//Cable TV Validation
+router.get("/validation", controller.validateCableTv);
 //POST PURCHASE DATA
-router.post("/purchase", guard(), joiValidator(validation.purchasedata), controller.payCableTvBill );
+router.get("/boque-cable-tv", joiValidator(validation.purchasedata), controller.getCableTvBoque );
+router.get("/boque-cable-tv-addon", joiValidator(validation.purchasedata), controller.getCableTvBoqueAddon );
 
 export default router;

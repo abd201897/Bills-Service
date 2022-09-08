@@ -1,12 +1,33 @@
 import Bills from "../../models/Bills";
 import { USSD_STRINGS, DATA_PACKAGES } from "../../utils/constants";
 import agent from "superagent";
-
+import { getToken } from "../electricityBill/controller";
 //SERVICE PENDING
-export const getCableTVBill = async (user, { phonenumber }) => {
+export const validateCableTv = async (body) => {
   try {
-    //RUN USSD FOR CHECKING DATA BALANCE FOR PROVIDED PHONE NUMBER
-    //RETURN BALANCE RECIEVED ABOVE
+
+    const token = await getToken();
+    const userCableTvData = {
+      "service": body.service,
+      "channel": body.channel,
+      "type": body.type,
+      "account": body.account
+    };
+    const response = await fetch(
+      `https://private-anon-af9bcbe189-vas40documentation.apiary-mock.com/api/v1/vas/cabletv/validation`,
+      {
+        method: "POST",
+        body: JSON.stringify(userCableTvData),
+        headers: {
+          "Content-Type": "application/json",
+          token: token,
+          signature: signature,
+        },
+      }
+    );
+
+    const data = await response.json();
+    return data;
   } catch (err) {
     return {
       success: false,
@@ -17,55 +38,29 @@ export const getCableTVBill = async (user, { phonenumber }) => {
 
 
 
-export const payCableTvBill = async (user, { telco, phonenumber, amount }) => {
+export const getCableTvBoque = async (body) => {
   try {
-    const billsaccount = await Bills.findOne({ userid: user._id });
-    if (billsaccount === null) {
-      throw new Error("Bills Account not found");
-    }
-    const ussdstring = `${
-      USSD_STRINGS[telco.toUpperCase()].PAY_CABLETV_BILL
-    }${phonenumber}*${amount}#`;
 
-    const res = await agent
-      .post("https://api.textng.xyz/carrier_ussd/")
-      .type("form")
-      .field("key", process.env.TEXTING_KEY)
-      .field("bypasscode", process.env.BYPASSCODE)
-      .field("ussd", ussdstring)
-      .field("ussd_steps", 1)
-      .field("amt", 0)
-      .field("pin", process.env.SECRET_PIN);
-
-    const result = JSON.parse(res.text).D.details[0];
-
-    if (result.status !== "successful") {
-      throw new Error("An Error Occured with the transaction");
-    }
-
-    const transaction = {
-      amount,
-      beneficiary: phonenumber,
-      transactiontime: new Date().toISOString(),
-      transactiontype: "INCOMING",
-      refid: result.ref_id,
+    const token = await getToken();
+    const boqueCableTvData = {
+      "service": body.service,
+      "type": body.type
     };
-    const updatedtransactions = [
-      ...billsaccount.airtime.transactions,
-      transaction,
-    ];
-
-    await Bills.findByIdAndUpdate(
-      billsaccount._id,
+    const response = await fetch(
+      `https://private-anon-af9bcbe189-vas40documentation.apiary-mock.com/api/v1/vas/cabletv/bouquets`,
       {
-        airtime: { ...billsaccount.airtime, transactions: updatedtransactions },
-      },
-      { new: true }
+        method: "POST",
+        body: JSON.stringify(boqueCableTvData),
+        headers: {
+          "Content-Type": "application/json",
+          token: token,
+          signature: signature,
+        },
+      }
     );
-    return {
-      success: true,
-      data: transaction,
-    };
+
+    const data = await response.json();
+    return data;
   } catch (error) {
     return {
       success: false,
@@ -74,3 +69,82 @@ export const payCableTvBill = async (user, { telco, phonenumber, amount }) => {
   }
 };
 
+
+
+export const getCableTvBoqueAddon = async (body) => {
+  try {
+
+    const token = await getToken();
+    const addonData = {
+      "service": body.service,
+      "type": body.type,
+      "bouquetCode": body.code
+    };
+    const response = await fetch(
+      `https://private-anon-af9bcbe189-vas40documentation.apiary-mock.com/api/v1/vas/cabletv/bouquets/addons`,
+      {
+        method: "POST",
+        body: JSON.stringify(addonData),
+        headers: {
+          "Content-Type": "application/json",
+          token: token,
+          signature: signature,
+        },
+      }
+    );
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    return {
+      success: false,
+      message: error.message,
+    };
+  }
+};
+
+
+
+export const getMultichoiceSubscription = async (body) => {
+  try {
+
+    const token = await getToken();
+    const multichoiceData = {
+      "phone": body.phone,
+      "code": body.code,
+      "renew": !!body.renew,
+      "paymentMethod": body.paymentMethod,
+      "service": body.service,
+      "clientReference": body.clientReference,
+      "pin": body.pin,
+      "productMonths": body.productMonths,
+      "totalAmount": body.totalAmount,
+      "addonCode": body.addonCode,
+      "addonMonths": body.addonMonths,
+      "addonPrice": body.addonPrice,
+      "productCode": body.productCode,
+      "card": body.card,
+      "channel": body.channel //B2B
+    };
+    const response = await fetch(
+      `https://private-anon-af9bcbe189-vas40documentation.apiary-mock.com/api/v1/vas/cabletv/subscription`,
+      {
+        method: "POST",
+        body: JSON.stringify(multichoiceData),
+        headers: {
+          "Content-Type": "application/json",
+          token: token,
+          signature: signature,
+        },
+      }
+    );
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    return {
+      success: false,
+      message: error.message,
+    };
+  }
+};

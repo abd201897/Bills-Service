@@ -9,8 +9,9 @@ export default {
           .string()
           .allow("MTN", "GLO", "AIRTEL", "NINEMOBILE")
           .required(),
-        phonenumber: joi.number().required(),
-      }),
+        phoneNumber: joi.number().required(),
+        pin: joi.number().required(),
+      }), 
     },
   },
 };
