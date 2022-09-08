@@ -7,12 +7,12 @@ import validation from "./validation";
 const router = Router();
 
 //GET AIRTIME BALANCE
-router.get("/balance", guard(), controller.getbalance);
+router.get("/balance", controller.getbalance);
+router.get("/status", controller.getStatus);
 
 //PURCHASE AIRTIME BALANCE
 router.post(
   "/purchase",
-  guard(),
   joiValidator(validation.purchaseairtime),
   controller.purchaseairtime
 );

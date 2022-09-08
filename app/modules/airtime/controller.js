@@ -3,7 +3,15 @@ import * as service from "./service";
 //SERVICE PENDING
 export async function getbalance(req, res, next) {
   try {
-    return res.status(200).json(await service.getbalance(req.user));
+    return res.status(200).json(await service.getbalance(req.user,req.body));
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function getStatus(req, res, next) {
+  try {
+    return res.status(200).json(await service.getStatus(req.body));
   } catch (err) {
     next(err);
   }

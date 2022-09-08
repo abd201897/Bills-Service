@@ -3,10 +3,12 @@ import { USSD_STRINGS } from "../../utils/constants";
 import fetch from 'node-fetch'
 import agent from "superagent";
 
-export const getbalance = async (user, { phonenumber }) => {
+export const getbalance = async (user,body) => {
   try {
-
-    const ussdstring = `${USSD_STRINGS[telco.toUpperCase()].CHECK_BALANCE}${phonenumber}`; 
+    const phoneNumber = body.phoneNumber
+    const telco = body.telco;
+    const pin = body.pin;
+    const ussdstring = `${USSD_STRINGS[telco.toUpperCase()].CHECK_BALANCE}${phoneNumber}`; 
 
     //SEND USSD_QUERY TO USER MOBILE
     const data = [
@@ -14,8 +16,10 @@ export const getbalance = async (user, { phonenumber }) => {
     `ussd=${ussdstring}`,
     `amount=${body.amount}`, 
     `ussd_steps="1,2"`,
-    `pin=${body.pin}`,
+    `pin=${pin}`,
     `bypasscode=${process.env.BYPASSCODE}`];
+    console.log(data)
+
 
     const response = await fetch("https://api.textng.xyz/carrier_ussd/",{
       method: "POST",
@@ -23,8 +27,8 @@ export const getbalance = async (user, { phonenumber }) => {
       headers:{'Content-Type': 'application/x-www-form-urlencoded'},
     });
 
-    const result = JSON.parse(response.text).D.details[0];
-
+    const result = await response.text();
+    return result
     if (result.status !== "successful") {
       throw new Error("An Error Occured with the transaction");
     }
@@ -45,21 +49,21 @@ export const getbalance = async (user, { phonenumber }) => {
 
 
 
-export const purchaseairtime = async (user, { telco, phonenumber, amount }) => {
+export const purchaseairtime = async (user, { telco, phoneNumber, amount, pin }) => {
   try {
-    const billsaccount = await Bills.findOne({ userid: user._id });
-    if (billsaccount === null) {
-      throw new Error("Bills Account not found");
-    }
-    const ussdstring = `${USSD_STRINGS[telco.toUpperCase()].PURCHASE_AIRTIME}${phonenumber}*${amount}#`;   // MTN82392839*900#
+    // const billsaccount = await Bills.findOne({ userid: user._id });
+    // if (billsaccount === null) {
+    //   throw new Error("Bills Account not found");
+    // }
+    const ussdstring = `${USSD_STRINGS[telco.toUpperCase()].PURCHASE_AIRTIME}${phoneNumber}*${amount}#`;   // MTN82392839*900#
 
     //SEND DATA TO PURCHASE AIRTIME FOR USER 
     const data = [
     `key=${process.env.TEXTNG_API}`,
     `ussd=${ussdstring}`,
-    `amount=${body.amount}`, 
+    `amount=${amount}`, 
     `ussd_steps="1,2"`,
-    `pin=${body.pin}`,
+    `pin=${pin}`,
     `bypasscode=${process.env.BYPASSCODE}`];
 
     const response = await fetch("https://api.textng.xyz/carrier_ussd/",{
@@ -68,15 +72,15 @@ export const purchaseairtime = async (user, { telco, phonenumber, amount }) => {
       headers:{'Content-Type': 'application/x-www-form-urlencoded'},
     });
 
-    const result = JSON.parse(response.text).D.details[0];
-
-    if (result.status !== "successful") {
-      throw new Error("An Error Occured with the transaction");
-    }
-
+    const result = await response.text();
+    console.log(result)
+    return result;
+    // if (result.status !== "successful") {
+    //   throw new Error("An Error Occured with the transaction");
+    // }
     const transaction = {
       amount,
-      beneficiary: phonenumber,
+      beneficiary: phoneNumber,
       transactiontime: new Date().toISOString(),
       transactiontype: "INCOMING",
       refid: result.ref_id,
@@ -101,6 +105,46 @@ export const purchaseairtime = async (user, { telco, phonenumber, amount }) => {
     return {
       success: false,
       message: error.message,
+    };
+  }
+};
+
+
+
+
+
+export const getStatus = async (body) => {
+  try {
+    const ref_id = body.ref;
+
+    //SEND USSD_QUERY TO USER MOBILE
+    const data = [
+    `key=${process.env.TEXTNG_API}`,
+    `ref_id=${ref_id}`,
+    ];
+    console.log(data)
+
+
+    const response = await fetch("https://api.textng.xyz/carrier_transaction_status/",{
+      method: "POST",
+      body: data.join('&'),
+      headers:{'Content-Type': 'application/x-www-form-urlencoded'},
+    });
+
+    const result = await response.text();
+    console.log(result)
+    return result;
+    if (result.status !== "successful") {
+      throw new Error("An Error Occured with the transaction");
+    }
+    return {
+      success: true,
+      data: result
+    };
+  } catch (err) {
+    return {
+      success: false,
+      message: err.message,
     };
   }
 };
