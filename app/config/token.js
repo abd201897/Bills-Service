@@ -1,6 +1,6 @@
 import fetch from "node-fetch";
 
-const getToken = async () => {
+const getMobileToken = async () => {
 
     const client_id = process.env.CLIENT_ID;
     const client_secret = process.env.CLIENT_SECRET;
@@ -14,4 +14,4 @@ const getToken = async () => {
     return data;
 }
 
-export default  getToken;
+export default  getMobileToken;
