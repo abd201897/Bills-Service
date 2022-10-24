@@ -17,6 +17,15 @@ export async function getStatus(req, res, next) {
   }
 }
 
+export async function getInformation(req, res, next) {
+  try {
+    return res.status(200).json(await service.getInformation(req.body));
+  } catch (err) {
+    next(err);
+  }
+}
+
+
 export async function purchaseairtime(req, res, next) {
   try {
     return res

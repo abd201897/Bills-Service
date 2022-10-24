@@ -1,12 +1,13 @@
 import Bills from "../../models/Bills";
 import { USSD_STRINGS } from "../../utils/constants";
-import fetch from 'node-fetch'
+import fetch from 'node-fetch';
+import getMobileToken from "../../config/token";
 import agent from "superagent";
 
 export const getbalance = async (user,body) => {
   try {
-    const phoneNumber = body.phoneNumber
-    const telco = body.telco;
+    const phoneNumber = body.phoneNumber  ;  //user[mtn,phonenumber] user.telco , user.phone_number
+    const telco = body.telco;  
     const pin = body.pin;
     const ussdstring = `${USSD_STRINGS[telco.toUpperCase()].CHECK_BALANCE}${phoneNumber}`; 
 
@@ -14,8 +15,8 @@ export const getbalance = async (user,body) => {
     const data = [
     `key=${process.env.TEXTNG_API}`,
     `ussd=${ussdstring}`,
-    `amount=${body.amount}`, 
-    `ussd_steps="1,2"`,
+    `Amount=${+body.amount}`, 
+    `ussd_steps=1`,
     `pin=${pin}`,
     `bypasscode=${process.env.BYPASSCODE}`];
     console.log(data)
@@ -26,7 +27,6 @@ export const getbalance = async (user,body) => {
       body: data.join('&'),
       headers:{'Content-Type': 'application/x-www-form-urlencoded'},
     });
-
     const result = await response.text();
     return result
     if (result.status !== "successful") {
@@ -62,7 +62,7 @@ export const purchaseairtime = async (user, { telco, phoneNumber, amount, pin })
     `key=${process.env.TEXTNG_API}`,
     `ussd=${ussdstring}`,
     `amount=${amount}`, 
-    `ussd_steps="1,2"`,
+    `ussd_steps=1`,
     `pin=${pin}`,
     `bypasscode=${process.env.BYPASSCODE}`];
 
@@ -140,6 +140,32 @@ export const getStatus = async (body) => {
     return {
       success: true,
       data: result
+    };
+  } catch (err) {
+    return {
+      success: false,
+      message: err.message,
+    };
+  }
+};
+
+
+
+
+export const getInformation = async (body) => {
+  try {
+    const phoneNumber = body.phoneNumber;
+    const { access_token } = await getMobileToken();
+
+    const response = await fetch(`https://api.chenosis.io/mobile/subscribers/${phoneNumber}/information`,{
+      headers:{'Content-Type': 'application/x-www-form-urlencoded',
+    'Authorization': `Bearer ${access_token}`},
+    });
+
+    const data = await response.json();
+    return {
+      success: true,
+      data: data
     };
   } catch (err) {
     return {

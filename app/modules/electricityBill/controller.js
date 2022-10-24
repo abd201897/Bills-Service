@@ -1,50 +1,69 @@
-import * as serviceAuth from "./serviceAuth"
-import * as serviceElectricity from "./serviceElectricity"
+import * as serviceIKEJA from "./serviceIKEJA"
+import * as serviceEEDC from "./serviceEEDC"
 
 //AUTH
 export async function getToken(req, res, next) {
   try {
-    return res.status(200).json(await serviceAuth.getToken(req.body));
+    return res.status(200).json(await serviceIKEJA.getCustomerDetailIKEJA(req.body));
   } catch (err) {
     next(err);
   }
 }
-
-export async function getEncryptedPin(req, res, next) {
+export async function getUsage(req, res, next) {
   try {
-    return res.status(200).json(await serviceAuth.getEncryptedPin(req.body));
+    return res.status(200).json(await serviceIKEJA.getCustomerUsage(req.body));
   } catch (err) {
     next(err);
   }
 }
 
-export async function getWallet(req, res, next) {
+export async function getDealerBalance(req, res, next) {
   try {
-    return res.status(200).json(await serviceAuth.getWallet(req.body));
+    return res.status(200).json(await serviceIKEJA.getDealerBalance(req.body));
   } catch (err) {
     next(err);
   }
 }
 
-//ElectricityBill
-export async function validateMeter(req, res, next) {
+export async function payElectricity(req, res, next) {
   try {
-    const { token, signature } = req.headers
-    return res.status(200).json(await serviceElectricity.validateMeter(req.body , token , signature));
+    return res.status(200).json(await serviceIKEJA.payElectricity(req.body));
   } catch (err) {
     next(err);
   }
 }
-export async function payment(req, res, next) {
+
+
+
+//EEDC
+export async function getCustomerDetailEEDC(req, res, next) {
   try {
-    const { token, signature } = req.headers
-    return res.status(200).json(await serviceElectricity.payment(req.body , token , signature));
+    return res.status(200).json(await serviceEEDC.getCustomerDetailEEDC(req.body));
   } catch (err) {
     next(err);
   }
 }
 
+export async function getUsageDetailEEDC(req, res, next) {
+  try {
+    return res.status(200).json(await serviceEEDC.getUsageDetailEEDC(req.body));
+  } catch (err) {
+    next(err);
+  }
+}
 
+export async function getDealerBalanceEEDC(req, res, next) {
+  try {
+    return res.status(200).json(await serviceEEDC.getDealerBalanceEEDC(req.body));
+  } catch (err) {
+    next(err);
+  }
+}
 
-
-
+export async function payElectricityEEDC(req, res, next) {
+  try {
+    return res.status(200).json(await serviceEEDC.payElectricityEEDC(req.body));
+  } catch (err) {
+    next(err);
+  }
+}
