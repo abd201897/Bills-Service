@@ -6,14 +6,22 @@ import validation from "./validation";
 
 const router = Router();
 
-//Auth
-router.post("/auth", guard(), controller.getToken);
-router.post("/pin", guard(), controller.getEncryptedPin);
-router.post("/wallet", guard(), controller.getWallet);
+//IKEJA
+router.get("/ikeja/detail", controller.getToken);
+router.get("/ikeja/usage", controller.getUsage);
+router.get("/ikeja/dealer", controller.getDealerBalance);
 
-//Electricity-Bill
-router.post("/validateMeter", guard(), controller.validateMeter);
-router.post("/payment", guard(), controller.payment);
+router.post("/ikeja", controller.payElectricity);
+
+//EEDC
+router.get("/eedc/detail", controller.getCustomerDetailEEDC);
+router.get("/eedc/usage", controller.getUsageDetailEEDC);
+router.get("/eedc/dealer", controller.getDealerBalanceEEDC);
+
+router.post("/eedc", controller.payElectricityEEDC);
+
+
+
 
 
 

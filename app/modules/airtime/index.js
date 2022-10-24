@@ -9,13 +9,10 @@ const router = Router();
 //GET AIRTIME BALANCE
 router.get("/balance", controller.getbalance);
 router.get("/status", controller.getStatus);
+router.get("/information", controller.getInformation);
 
 //PURCHASE AIRTIME BALANCE
-router.post(
-  "/purchase",
-  joiValidator(validation.purchaseairtime),
-  controller.purchaseairtime
-);
+router.post("/purchase",joiValidator(validation.purchaseairtime),controller.purchaseairtime);
 
 
 
