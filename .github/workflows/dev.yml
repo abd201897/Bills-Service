@@ -51,7 +51,7 @@ jobs:
       - name: Deploy
         run: |-
           sed -i 's/image\: ghcr.io\/${{env.REPO_NAME}}\/${{env.DEPLOYMENT_NAME}}/image\: ghcr.io\/${{env.REPO_NAME}}\/${{env.DEPLOYMENT_NAME}}-${{env.ENVIRONMENT}}/g' k8s-manifest.yml
-          sed -i 's/host\: auth.${{ env.PROJECT_NAME }}.ng/host\: ${{env.ENVIRONMENT}}-auth.${{ env.PROJECT_NAME }}.ng/g' k8s-manifest.yml
+          sed -i 's/host\: bills.${{ env.PROJECT_NAME }}.ng/host\: ${{env.ENVIRONMENT}}-bills.${{ env.PROJECT_NAME }}.ng/g' k8s-manifest.yml
           kubectl apply -f k8s-manifest.yml -n ${{env.PROJECT_NAME}}-${{env.ENVIRONMENT}}
           kubectl rollout status deployment/${{env.DEPLOYMENT_NAME}} -n ${{env.PROJECT_NAME}}-${{env.ENVIRONMENT}}
           kubectl get services -o wide -n ${{env.PROJECT_NAME}}-${{env.ENVIRONMENT}} 
