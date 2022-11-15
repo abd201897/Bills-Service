@@ -5,7 +5,6 @@ metadata:
     project: paymax
     app: bills-service
   name: bills-service
-  namespace: paymax
 spec:
   ports:
     - name: bills-service
@@ -21,13 +20,12 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: bills-service-ingress
-  namespace: paymax
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
   ingressClassName: nginx
   rules:
-  - host: bills-service-prod.paymax.com
+  - host: bills.paymax.ng
     http:
       paths:
       - path: /
@@ -46,7 +44,6 @@ metadata:
   labels:
     project: paymax
     app: bills-service
-  namespace: paymax
 data:
   default.conf: |
     upstream app {
@@ -79,7 +76,6 @@ metadata:
     project: paymax
     app: bills-service
   name: bills-service
-  namespace: paymax
 spec:
   replicas: 1
   selector:
@@ -106,7 +102,7 @@ spec:
             - name: app-dir
               mountPath: /app/static
         - name: bills-service-app
-          image: gcr.io/production-367411/bills-service-prod:latest
+          image: ghcr.io/paymax2022/bills-service:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
@@ -114,7 +110,11 @@ spec:
               protocol: TCP
           env:
             - name: MONGO_URI
-              value: "mongodb://localhost:27017/?maxPoolSize=20&w=majority"
+              valueFrom:
+                secretKeyRef:
+                  key: MONGO_URI
+                  name: bills-service-secret
+                  optional: true
           volumeMounts:
             - name: app-dir
               mountPath: /app/static
