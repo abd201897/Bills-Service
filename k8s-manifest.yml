@@ -109,6 +109,54 @@ spec:
               name: app
               protocol: TCP
           env:
+            - name: BYPASSCODE
+              valueFrom:
+                secretKeyRef:
+                  key: BYPASSCODE
+                  name: bills-service-secret
+                  optional: true
+            - name: CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  key: CLIENT_ID
+                  name: bills-service-secret
+                  optional: true
+            - name: CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  key: CLIENT_SECRET
+                  name: bills-service-secret
+                  optional: true   
+            - name: DEALER_CODE_EEDC
+              valueFrom:
+                secretKeyRef:
+                  key: DEALER_CODE_EEDC
+                  name: bills-service-secret
+                  optional: true  
+            - name: DEALER_CODE_IKEJA
+              valueFrom:
+                secretKeyRef:
+                  key: DEALER_CODE_IKEJA
+                  name: bills-service-secret
+                  optional: true                    
+            - name: EEDC_APP_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: EEDC_APP_KEY
+                  name: bills-service-secret
+                  optional: true  
+            - name: IKEJA_APP_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: IKEJA_APP_KEY
+                  name: bills-service-secret
+                  optional: true          
+            - name: TEXTNG_API
+              valueFrom:
+                secretKeyRef:
+                  key: TEXTNG_API
+                  name: bills-service-secret
+                  optional: true                                          
             - name: MONGO_URI
               valueFrom:
                 secretKeyRef:

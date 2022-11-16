@@ -47,7 +47,13 @@ jobs:
         run: |-
           mkdir -p /home/runner/.kube/
           echo "KUBECONFIG=${{ secrets.KUBECONFIG}}" > /home/runner/.kube/config
-
+      
+      - name: Create Envrionment Variable
+        run: |-
+          echo "DEV_ENV=${{ secrets.DEV_ENV }}" > ./.env
+          kubectl delete secret --ignore-not-found ${{env.DEPLOYMENT_NAME}}-secret -n ${{env.PROJECT_NAME}}-${{env.ENVIRONMENT}}
+          kubectl create secret generic ${{env.DEPLOYMENT_NAME}}-secret -n ${{env.PROJECT_NAME}}-${{env.ENVIRONMENT}} --from-env-file=./.env
+          
       - name: Deploy
         run: |-
           sed -i 's/image\: ghcr.io\/${{env.REPO_NAME}}\/${{env.DEPLOYMENT_NAME}}/image\: ghcr.io\/${{env.REPO_NAME}}\/${{env.DEPLOYMENT_NAME}}-${{env.ENVIRONMENT}}/g' k8s-manifest.yml
