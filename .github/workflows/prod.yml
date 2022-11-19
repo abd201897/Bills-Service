@@ -2,7 +2,7 @@ name: PROD Build and Deploy to Vultr
 
 on:
   push:
-    branches: [ ops ]
+    branches: [ main ]
 
 env:
   DEPLOYMENT_NAME: bills-service
