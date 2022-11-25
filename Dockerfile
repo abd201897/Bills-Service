@@ -6,7 +6,7 @@ ENV MONGO_URI=""
 ENV PORT=8080
 COPY package*.json ./
 RUN npm install -g npm@8.19.3
-RUN npm install
+#RUN npm install
 
 #RUN npm run prod
 
