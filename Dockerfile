@@ -1,5 +1,5 @@
 FROM node:16.3.0-alpine
-
+RUN apk add g++ make py3-pip
 WORKDIR /app
 
 ENV MONGO_URI=""
