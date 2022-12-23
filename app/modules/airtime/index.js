@@ -7,9 +7,9 @@ import validation from "./validation";
 const router = Router();
 
 //GET AIRTIME BALANCE
-router.get("/balance", controller.getbalance);
+router.get("/balance", controller.getbalance);                  //Text-ng
 router.get("/status", controller.getStatus);
-router.get("/information", controller.getInformation);
+router.get("/information", controller.getInformation);         //sms77
 
 //PURCHASE AIRTIME BALANCE
 router.post("/purchase",joiValidator(validation.purchaseairtime),controller.purchaseairtime);
