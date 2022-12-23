@@ -4,28 +4,28 @@ import fetch from 'node-fetch';
 import getMobileToken from "../../config/token";
 import agent from "superagent";
 
-export const getbalance = async (user,body) => {
+export const getbalance = async (user, body) => {
   try {
-    const phoneNumber = body.phoneNumber  ;  //user[mtn,phonenumber] user.telco , user.phone_number
-    const telco = body.telco;  
+    const phoneNumber = body.phoneNumber;  //user[mtn,phonenumber] user.telco , user.phone_number
+    const telco = body.telco;
     const pin = body.pin;
-    const ussdstring = `${USSD_STRINGS[telco.toUpperCase()].CHECK_BALANCE}${phoneNumber}`; 
+    const ussdstring = `${USSD_STRINGS[telco.toUpperCase()].CHECK_BALANCE}${phoneNumber}`;
 
     //SEND USSD_QUERY TO USER MOBILE
     const data = [
-    `key=${process.env.TEXTNG_API}`,
-    `ussd=${ussdstring}`,
-    `Amount=${+body.amount}`, 
-    `ussd_steps=1`,
-    `pin=${pin}`,
-    `bypasscode=${process.env.BYPASSCODE}`];
+      `key=${process.env.TEXTNG_API}`,
+      `ussd=${ussdstring}`,
+      `Amount=${+body.amount}`,
+      `ussd_steps=1`,
+      `pin=${pin}`,
+      `bypasscode=${process.env.BYPASSCODE}`];
     console.log(data)
 
 
-    const response = await fetch("https://api.textng.xyz/carrier_ussd/",{
+    const response = await fetch("https://api.textng.xyz/carrier_ussd/", {
       method: "POST",
       body: data.join('&'),
-      headers:{'Content-Type': 'application/x-www-form-urlencoded'},
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     });
     const result = await response.text();
     return result
@@ -59,17 +59,17 @@ export const purchaseairtime = async (user, { telco, phoneNumber, amount, pin })
 
     //SEND DATA TO PURCHASE AIRTIME FOR USER 
     const data = [
-    `key=${process.env.TEXTNG_API}`,
-    `ussd=${ussdstring}`,
-    `amount=${amount}`, 
-    `ussd_steps=1`,
-    `pin=${pin}`,
-    `bypasscode=${process.env.BYPASSCODE}`];
+      `key=${process.env.TEXTNG_API}`,
+      `ussd=${ussdstring}`,
+      `amount=${amount}`,
+      `ussd_steps=1`,
+      `pin=${pin}`,
+      `bypasscode=${process.env.BYPASSCODE}`];
 
-    const response = await fetch("https://api.textng.xyz/carrier_ussd/",{
+    const response = await fetch("https://api.textng.xyz/carrier_ussd/", {
       method: "POST",
       body: data.join('&'),
-      headers:{'Content-Type': 'application/x-www-form-urlencoded'},
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     });
 
     const result = await response.text();
@@ -119,16 +119,16 @@ export const getStatus = async (body) => {
 
     //SEND USSD_QUERY TO USER MOBILE
     const data = [
-    `key=${process.env.TEXTNG_API}`,
-    `ref_id=${ref_id}`,
+      `key=${process.env.TEXTNG_API}`,
+      `ref_id=${ref_id}`,
     ];
     console.log(data)
 
 
-    const response = await fetch("https://api.textng.xyz/carrier_transaction_status/",{
+    const response = await fetch("https://api.textng.xyz/carrier_transaction_status/", {
       method: "POST",
       body: data.join('&'),
-      headers:{'Content-Type': 'application/x-www-form-urlencoded'},
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     });
 
     const result = await response.text();
@@ -154,14 +154,20 @@ export const getStatus = async (body) => {
 
 export const getInformation = async (body) => {
   try {
-    const phoneNumber = body.phoneNumber;
-    const { access_token } = await getMobileToken();
-
-    const response = await fetch(`https://api.chenosis.io/mobile/subscribers/${phoneNumber}/information`,{
-      headers:{'Content-Type': 'application/x-www-form-urlencoded',
-    'Authorization': `Bearer ${access_token}`},
+    const phoneNumber = +body.phoneNumber;
+    // const { access_token } = await getMobileToken();
+    const API_KEY = process.env.SMS77_API_KEY
+    // const userData = {
+    //   type: "mnp",
+    //   number: phoneNumber
+    // }
+    const response = await fetch(`https://gateway.sms77.io/api/lookup?p=${API_KEY}&number=${phoneNumber}&type=mnp&json=1`, {
+      headers: {
+        'Authorization': `basic ${API_KEY}`,
+        'Content-Type' : 'application/x-www-form-urlencoded'
+      },
     });
-
+    console.log(response)
     const data = await response.json();
     return {
       success: true,
