@@ -1,114 +1,31 @@
-apiVersion: v1
-kind: Service
-metadata:
-  labels:
-    project: paymax
-    app: bills-service
-  name: bills-service
-spec:
-  ports:
-    - name: bills-service
-      port: 8000
-      protocol: TCP
-      targetPort: 8000
-  selector:
-    app: bills-service
-  type: ClusterIP
-
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: bills-service-ingress
-  annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
-spec:
-  ingressClassName: nginx
-  rules:
-  - host: bills.paymax.ng
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: bills-service
-            port:
-              number: 8000
-
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: bills-service-config
-  labels:
-    project: paymax
-    app: bills-service
-data:
-  default.conf: |
-    upstream app {
-      server 127.0.0.1:8080;
-    }
-
-    server {
-      listen 8000;
-      server_name _;
-      location / {
-        proxy_pass http://app;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header Host $host;
-        proxy_redirect off;
-      }
-      location /status {
-        add_header Content-Type 'text/html';
-        return 200 "App Pod Working";
-      }
-      location /static {
-        alias /app/static/;
-      }
-    }
-
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  name: bills-service
   labels:
     project: paymax
-    app: bills-service
-  name: bills-service
+    app: bills-app
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: bills-service
+      project: paymax
+      app: bills-app
   template:
     metadata:
       labels:
         project: paymax
-        app: bills-service
+        app: bills-app
     spec:
       containers:
-        - name: bills-service-nginx
-          image: nginx
-          ports:
-            - containerPort: 8000
-              name: nginx
-              protocol: TCP
-          volumeMounts:
-            - mountPath: /etc/nginx/conf.d/default.conf
-              name: bills-service-config-vol
-              subPath: default.conf
-              readOnly: true
-            - name: app-dir
-              mountPath: /app/static
-        - name: bills-service-app
-          image: ghcr.io/paymax2022/bills-service:latest
-          imagePullPolicy: Always
-          ports:
-            - containerPort: 8080
-              name: app
-              protocol: TCP
-          env:
+      - name: bills-service
+        image: registry.digitalocean.com/bills-service/bills:latest
+        imagePullPolicy: IfNotPresent
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        env:
             - name: BYPASSCODE
               valueFrom:
                 secretKeyRef:
@@ -163,18 +80,24 @@ spec:
                   key: MONGO_URI
                   name: bills-service-secret
                   optional: true
-          volumeMounts:
-            - name: app-dir
-              mountPath: /app/static
-          resources: {}
-      imagePullSecrets:
-        - name: regcred
-      volumes:
-        - name: app-dir
-          emptyDir: {}
-        - name: bills-service-config-vol
-          configMap:
-            name: bills-service-config
-            items:
-              - key: default.conf
-                path: default.conf
+
+        ports:
+        - containerPort: 8080
+        
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: bills-service
+  labels:
+    project: paymax
+    app: bills-app
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: 8080
+  selector:
+    app: bills-app
+    project: paymax
